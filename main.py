@@ -53,20 +53,30 @@ def main():
             menu_td = menu_row.find_all('td')
 
             if i == 0:
-                menu = menu_td[-1].find(recursive=True).text.strip()
+                menu = menu_td[-1].find('p', recursive=True).text.strip()
                 corner = menu_td[-2].find(recursive=True).text.strip()
             else:
                 # menu_td는 최소 1개 이상이 존재하며, -1은 항상 메뉴명
-                menu = menu_td[-1].find(recursive=True).text.strip() 
+                menu = menu_td[-1].find('p', recursive=True).text.strip() 
+                
                 # menu_td가 2개일 경우, 첫 번째에는 코너가 오게 됨. 1개일 경우 메뉴명.
-                corner_candidate = menu_td[0].find(recursive=True).text.strip()
-                print(corner_candidate)
-                if corner_candidate != menu:
+                corner_candidates = menu_td[0].find_all(recursive=True)
+                corner_candidate = ''
+                for tmp_corner in corner_candidates:
+                    # 'CORNER 3' 상하로 엔터를 넣으셔서 (모두 p 태그로 분리되는 바람에)
+                    # 실제 내용이 들어있는 것을 추려내야 함
+                    tmp_corner_name = tmp_corner.text.strip()
+                    if len(tmp_corner_name) > len(corner_candidate):
+                        corner_candidate = tmp_corner_name
+                
+                banned_corner = (
+                    '(면/밥) +탕수육'  # '짬뽕' + '(면/밥) +탕수육'
+                )
+
+                if corner_candidate and corner_candidate != menu and corner_candidate not in banned_corner:
                     corner = corner_candidate
 
             print(f'{corner or "CORNER ?"} : {menu or "???"}')
-
-
 
 
 if __name__ == "__main__":
