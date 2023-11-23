@@ -28,7 +28,7 @@ def get_meals():
             # print(title_td)
             title = title_td.find_all(recursive=False)[-1].text.strip()
 
-        meal_date = datetime.strptime(normalize('NFC', title)[:-4], '%Y년 %m월 %d일') or None
+        meal_date = datetime.strptime(normalize('NFC', title)[:-4], '%Y년 %m월 %d일').date() or None
         daily_meals['datestring'] = normalize('NFC', title)
         daily_meals['date'] = meal_date
 
