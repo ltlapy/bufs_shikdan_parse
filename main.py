@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-from get_meal import get_meals
+from get_meal import BUFSMeals
 import json
 from typing import Optional
 from datetime import datetime
 from fastapi import FastAPI
 
 app = FastAPI()
+meals = BUFSMeals()
 
 @app.get("/")
 def web_root():
     return "Hello, world!"
 
-@app.get("/weekly_meals")
+@app.get("/meals/weekly")
 def weekly_meal():
-    return get_meals()
+    return meals.get_weekly()
 
-@app.get("/daily_meal")
+@app.get("/meals/daily")
 def daily_meal(date_str: Optional[str] = None):
     if date_str:
         try:
@@ -28,18 +29,17 @@ def daily_meal(date_str: Optional[str] = None):
     else:
         date = datetime.today().date()
     
-    meals = get_meals()
-    for meal in meals:
-        if meal['date'] == date:
-            return {
-                'result': 'succeed',
-                'body': meal
-            }
-    
-    return {
-        'result': 'error',
-        'reason': 'meals on date not found'
-    }
+    meal = meals.get_daily(date)
+    if meal:
+        return {
+            'result': 'succeed',
+            'body': meal
+        }
+    else:
+        return {
+            'result': 'error',
+            'reason': 'meals on date not found'
+        }
     
     
 
