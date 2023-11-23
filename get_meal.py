@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 from unicodedata import normalize
+from datetime import datetime
 
 WEEKLY_MEAL_URL = 'http://www.bufs.ac.kr/bbs/my/ajax.view.skin.php?bo_table=weekly_meal&wr_id=1'
 
@@ -27,7 +28,9 @@ def get_meals():
             # print(title_td)
             title = title_td.find_all(recursive=False)[-1].text.strip()
 
+        meal_date = datetime.strptime(normalize('NFC', title)[:-4], '%Y년 %m월 %d일') or None
         daily_meals['datestring'] = normalize('NFC', title)
+        daily_meals['date'] = meal_date
 
         # * 조식
         breakfasts = []
@@ -74,11 +77,11 @@ def get_meals():
                     if len(tmp_corner_name) > len(corner_candidate):
                         corner_candidate = tmp_corner_name
                 
-                banned_corner = (
+                ignored_corner = (
                     '(면/밥) +탕수육'  # '짬뽕' + '(면/밥) +탕수육'
                 )
 
-                if corner_candidate and corner_candidate != menu and corner_candidate not in banned_corner:
+                if corner_candidate and corner_candidate != menu and corner_candidate not in ignored_corner:
                     corner = corner_candidate
 
             # print(f'{corner or "CORNER ?"} : {menu or "???"}')
